@@ -1,0 +1,501 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Coffee Certificate</title>
+  <style>
+    :root {
+      --coffee: #5b351d;
+      --coffee-dark: #2b1a10;
+      --cream: #fff8ed;
+      --latte: #ead6ba;
+      --caramel: #c7823a;
+      --foam: #fffdf8;
+      --mint: #56715d;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      padding: 28px 16px;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(255, 244, 219, 0.95), transparent 32rem),
+        radial-gradient(circle at bottom right, rgba(199, 130, 58, 0.24), transparent 26rem),
+        linear-gradient(135deg, #f8ead8, #efe0cc);
+      color: var(--coffee-dark);
+    }
+
+    .app {
+      width: min(760px, 100%);
+      margin: 0 auto;
+      padding: clamp(20px, 4vw, 34px);
+      position: relative;
+      overflow: hidden;
+      background: rgba(255, 253, 248, 0.86);
+      border: 1px solid rgba(91, 53, 29, 0.14);
+      border-radius: 28px;
+      box-shadow: 0 24px 70px rgba(65, 38, 20, 0.18);
+      backdrop-filter: blur(12px);
+    }
+
+    .app::before,
+    .app::after {
+      content: "";
+      position: absolute;
+      width: 190px;
+      height: 190px;
+      border-radius: 50%;
+      background: rgba(234, 214, 186, 0.42);
+      z-index: -1;
+    }
+
+    .app::before {
+      top: -85px;
+      right: -70px;
+    }
+
+    .app::after {
+      bottom: -100px;
+      left: -70px;
+    }
+
+    header {
+      text-align: center;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(2.1rem, 8vw, 4.2rem);
+      line-height: 1;
+      letter-spacing: -0.06em;
+    }
+
+    .eyebrow {
+      margin: 0 0 10px;
+      color: var(--caramel);
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    .intro {
+      max-width: 520px;
+      margin: 14px auto 0;
+      color: #6f5947;
+      line-height: 1.6;
+    }
+
+    .progress-card {
+      margin-top: 24px;
+      padding: 16px;
+      background: linear-gradient(135deg, rgba(91, 53, 29, 0.92), rgba(126, 76, 35, 0.9));
+      border-radius: 20px;
+      color: white;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22), 0 12px 30px rgba(91, 53, 29, 0.22);
+    }
+
+    .progress-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: baseline;
+      margin-bottom: 12px;
+      font-weight: 700;
+    }
+
+    .progress-track {
+      height: 12px;
+      overflow: hidden;
+      background: rgba(255, 255, 255, 0.24);
+      border-radius: 999px;
+    }
+
+    .progress-fill {
+      width: 0%;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #f7d083, #fff0c7);
+      transition: width 220ms ease;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
+      gap: 16px;
+      margin-top: 24px;
+    }
+
+    .cup {
+      position: relative;
+      padding: 18px;
+      background: var(--foam);
+      border: 1px solid rgba(91, 53, 29, 0.12);
+      border-radius: 20px;
+      box-shadow: 0 10px 24px rgba(65, 38, 20, 0.08);
+      transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+    }
+
+    .cup:hover,
+    .cup:focus-within {
+      transform: translateY(-3px);
+      border-color: rgba(199, 130, 58, 0.55);
+      box-shadow: 0 16px 34px rgba(65, 38, 20, 0.14);
+    }
+
+    .cup.filled {
+      background: linear-gradient(180deg, #fffdf8, #fff5e5);
+    }
+
+    .cup.filled::after {
+      content: "filled";
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      padding: 4px 8px;
+      background: rgba(86, 113, 93, 0.12);
+      border-radius: 999px;
+      color: var(--mint);
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+    }
+
+    label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    label::before {
+      content: "☕";
+      display: inline-grid;
+      place-items: center;
+      width: 28px;
+      height: 28px;
+      background: #f4e4ce;
+      border-radius: 50%;
+      font-size: 0.95rem;
+    }
+
+    input {
+      width: 100%;
+      font-size: 18px;
+      padding: 12px 14px;
+      border: 1px solid #d8c4aa;
+      border-radius: 14px;
+      background: #fffaf2;
+      color: var(--coffee-dark);
+      outline: none;
+      transition: border-color 160ms ease, box-shadow 160ms ease, background 160ms ease;
+    }
+
+    input:focus {
+      border-color: var(--caramel);
+      background: white;
+      box-shadow: 0 0 0 4px rgba(199, 130, 58, 0.16);
+    }
+
+    .actions {
+      display: grid;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .button-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    button {
+      width: 100%;
+      font-size: 18px;
+      padding: 15px 18px;
+      border: none;
+      border-radius: 16px;
+      cursor: pointer;
+      background: linear-gradient(135deg, var(--coffee), #8a5529);
+      color: white;
+      font-weight: 800;
+      box-shadow: 0 12px 22px rgba(91, 53, 29, 0.22);
+      transition: transform 160ms ease, box-shadow 160ms ease;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 16px 28px rgba(91, 53, 29, 0.28);
+    }
+
+    button:active {
+      transform: translateY(0) scale(0.99);
+    }
+
+    .secondary-button {
+      background: #fffaf2;
+      border: 1px solid rgba(91, 53, 29, 0.18);
+      color: var(--coffee);
+      box-shadow: 0 8px 18px rgba(91, 53, 29, 0.08);
+    }
+
+    .secondary-button:hover {
+      box-shadow: 0 12px 22px rgba(91, 53, 29, 0.14);
+    }
+
+    .danger-button {
+      background: linear-gradient(135deg, #8f3a24, #c2603d);
+    }
+
+    .confirm-reset {
+      display: none;
+      padding: 16px;
+      background: #fff6eb;
+      border: 1px solid rgba(143, 58, 36, 0.2);
+      border-radius: 18px;
+      box-shadow: 0 10px 24px rgba(91, 53, 29, 0.08);
+    }
+
+    .confirm-reset.show {
+      display: block;
+    }
+
+    .confirm-reset p {
+      margin: 0 0 12px;
+      color: #6f5947;
+      line-height: 1.5;
+      text-align: center;
+    }
+
+    .summary {
+      padding: 14px 16px;
+      background: rgba(234, 214, 186, 0.42);
+      border-radius: 16px;
+      text-align: center;
+      font-size: 1.08rem;
+      font-weight: 800;
+    }
+
+    .saved {
+      position: fixed;
+      left: 50%;
+      bottom: 22px;
+      transform: translate(-50%, 20px);
+      padding: 12px 18px;
+      background: var(--mint);
+      border-radius: 999px;
+      text-align: center;
+      color: white;
+      font-weight: 800;
+      opacity: 0;
+      pointer-events: none;
+      box-shadow: 0 12px 28px rgba(45, 65, 49, 0.28);
+      transition: opacity 180ms ease, transform 180ms ease;
+    }
+
+    .saved.show {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+
+    @media (max-width: 520px) {
+      body {
+        padding: 12px;
+      }
+
+      .app {
+        border-radius: 22px;
+      }
+
+      .progress-row {
+        display: block;
+      }
+
+      .progress-row span:last-child {
+        display: block;
+        margin-top: 4px;
+      }
+
+      .button-row {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header>
+      <p class="eyebrow">10 cup keepsake</p>
+      <h1>☕ Coffee Certificate</h1>
+      <p class="intro">Track each cozy coffee moment, watch your certificate fill up, then save your progress for the next visit.</p>
+    </header>
+
+    <section class="progress-card" aria-label="Certificate progress">
+      <div class="progress-row">
+        <span id="progressText">0 of 10 cups filled</span>
+        <span id="summary"></span>
+      </div>
+      <div class="progress-track" aria-hidden="true">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+    </section>
+
+    <div class="grid" id="cups"></div>
+
+    <div class="actions">
+      <div class="button-row">
+        <button id="saveButton">Save coffee certificate</button>
+        <button class="secondary-button" id="resetButton" type="button">Reset certificate</button>
+      </div>
+      <div class="confirm-reset" id="resetConfirm" aria-live="polite">
+        <p>Are you sure you want to reset the certificate? This will clear all 10 cups and remove the saved data.</p>
+        <div class="button-row">
+          <button class="danger-button" id="confirmResetButton" type="button">Yes, start fresh</button>
+          <button class="secondary-button" id="cancelResetButton" type="button">Keep my cups</button>
+        </div>
+      </div>
+      <div class="summary" id="averageSummary"></div>
+    </div>
+  </main>
+
+  <div class="saved" id="savedMessage" role="status" aria-live="polite"></div>
+
+  <script>
+    const STORAGE_KEY = "coffee-certificate-amounts";
+    const cupsContainer = document.getElementById("cups");
+    const saveButton = document.getElementById("saveButton");
+    const resetButton = document.getElementById("resetButton");
+    const resetConfirm = document.getElementById("resetConfirm");
+    const confirmResetButton = document.getElementById("confirmResetButton");
+    const cancelResetButton = document.getElementById("cancelResetButton");
+    const summary = document.getElementById("summary");
+    const averageSummary = document.getElementById("averageSummary");
+    const progressText = document.getElementById("progressText");
+    const progressFill = document.getElementById("progressFill");
+    const savedMessage = document.getElementById("savedMessage");
+    let savedMessageTimeout;
+
+    function loadAmounts() {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) {
+        return Array(10).fill("");
+      }
+
+      try {
+        const amounts = JSON.parse(raw);
+        return Array.isArray(amounts) ? amounts.slice(0, 10).concat(Array(10).fill("")).slice(0, 10) : Array(10).fill("");
+      } catch {
+        return Array(10).fill("");
+      }
+    }
+
+    function saveAmounts(amounts) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(amounts));
+    }
+
+    function showMessage(message) {
+      savedMessage.textContent = message;
+      savedMessage.classList.add("show");
+      clearTimeout(savedMessageTimeout);
+      savedMessageTimeout = setTimeout(() => {
+        savedMessage.classList.remove("show");
+      }, 1500);
+    }
+
+    function calculateTotal(amounts) {
+      return amounts.reduce((sum, value) => {
+        const number = parseFloat(value);
+        return sum + (Number.isFinite(number) ? number : 0);
+      }, 0);
+    }
+
+    function render() {
+      const amounts = loadAmounts();
+      cupsContainer.innerHTML = "";
+
+      amounts.forEach((amount, index) => {
+        const div = document.createElement("div");
+        div.className = amount ? "cup filled" : "cup";
+
+        const label = document.createElement("label");
+        label.htmlFor = `cup-${index}`;
+        label.textContent = `Cup ${index + 1}`;
+
+        const input = document.createElement("input");
+        input.id = `cup-${index}`;
+        input.type = "number";
+        input.min = "0";
+        input.step = "0.01";
+        input.placeholder = "Amount spent";
+        input.value = amount;
+
+        div.append(label, input);
+        cupsContainer.appendChild(div);
+      });
+
+      updateSummary();
+    }
+
+    function getCurrentAmounts() {
+      return Array.from(cupsContainer.querySelectorAll("input")).map(input => input.value);
+    }
+
+    function resetCertificate() {
+      localStorage.removeItem(STORAGE_KEY);
+      cupsContainer.querySelectorAll("input").forEach(input => {
+        input.value = "";
+      });
+      resetConfirm.classList.remove("show");
+      updateSummary();
+      showMessage("Certificate reset. Fresh cups are ready.");
+    }
+
+    function updateSummary() {
+      const amounts = getCurrentAmounts();
+      const total = calculateTotal(amounts);
+      const filledCount = amounts.filter(value => value.trim() !== "").length;
+      const average = filledCount ? total / filledCount : 0;
+
+      summary.textContent = `Total: ${total.toFixed(2)}`;
+      averageSummary.textContent = filledCount
+        ? `Average per filled cup: ${average.toFixed(2)}`
+        : "Add an amount to start filling your certificate.";
+      progressText.textContent = `${filledCount} of 10 cups filled`;
+      progressFill.style.width = `${filledCount * 10}%`;
+
+      document.querySelectorAll(".cup").forEach((cup, index) => {
+        cup.classList.toggle("filled", amounts[index].trim() !== "");
+      });
+    }
+
+    cupsContainer.addEventListener("input", updateSummary);
+
+    saveButton.addEventListener("click", () => {
+      const amounts = getCurrentAmounts();
+      saveAmounts(amounts);
+
+      resetConfirm.classList.remove("show");
+      showMessage("Saved. Your next cup is waiting.");
+    });
+
+    resetButton.addEventListener("click", () => {
+      resetConfirm.classList.add("show");
+    });
+
+    cancelResetButton.addEventListener("click", () => {
+      resetConfirm.classList.remove("show");
+    });
+
+    confirmResetButton.addEventListener("click", resetCertificate);
+
+    render();
+  </script>
+</body>
+</html>
