@@ -126,8 +126,8 @@
     }
 
     .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
+      display: flex;
+      flex-direction: column;
       gap: 16px;
       margin-top: 24px;
     }
@@ -209,6 +209,21 @@
       grid-template-columns: 1fr auto;
       gap: 8px;
       align-items: center;
+    }
+
+    .cup-fields {
+      display: grid;
+      gap: 12px;
+    }
+
+    .field-label {
+      display: block;
+      margin-bottom: 6px;
+      color: #6f5947;
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
     }
 
     .actions {
@@ -397,22 +412,42 @@
     const savedMessage = document.getElementById("savedMessage");
     let savedMessageTimeout;
 
-    function loadAmounts() {
+    function emptyCups() {
+      return Array.from({ length: 10 }, () => ({ amount: "", date: "" }));
+    }
+
+    function normalizeCup(cup) {
+      if (cup && typeof cup === "object" && !Array.isArray(cup)) {
+        return {
+          amount: cup.amount ?? "",
+          date: cup.date ?? "",
+        };
+      }
+
+      return {
+        amount: cup ?? "",
+        date: "",
+      };
+    }
+
+    function loadCups() {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (!raw) {
-        return Array(10).fill("");
+        return emptyCups();
       }
 
       try {
-        const amounts = JSON.parse(raw);
-        return Array.isArray(amounts) ? amounts.slice(0, 10).concat(Array(10).fill("")).slice(0, 10) : Array(10).fill("");
+        const cups = JSON.parse(raw);
+        return Array.isArray(cups)
+          ? cups.slice(0, 10).map(normalizeCup).concat(emptyCups()).slice(0, 10)
+          : emptyCups();
       } catch {
-        return Array(10).fill("");
+        return emptyCups();
       }
     }
 
-    function saveAmounts(amounts) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(amounts));
+    function saveCups(cups) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(cups));
     }
 
     function showMessage(message) {
@@ -432,12 +467,12 @@
     }
 
     function render() {
-      const amounts = loadAmounts();
+      const cups = loadCups();
       cupsContainer.innerHTML = "";
 
-      amounts.forEach((amount, index) => {
+      cups.forEach((cup, index) => {
         const div = document.createElement("div");
-        div.className = amount ? "cup filled" : "cup";
+        div.className = cup.amount || cup.date ? "cup filled" : "cup";
 
         const label = document.createElement("label");
         label.htmlFor = `cup-${index}`;
@@ -449,7 +484,16 @@
         input.min = "0";
         input.step = "0.01";
         input.placeholder = "Amount spent";
-        input.value = amount;
+        input.value = cup.amount;
+
+        const dateLabel = document.createElement("span");
+        dateLabel.className = "field-label";
+        dateLabel.textContent = "Date";
+
+        const dateInput = document.createElement("input");
+        dateInput.id = `cup-${index}-date`;
+        dateInput.type = "date";
+        dateInput.value = cup.date;
 
         const saveButton = document.createElement("button");
         saveButton.className = "save-cup-button";
@@ -462,7 +506,14 @@
         amountRow.className = "amount-row";
         amountRow.append(input, saveButton);
 
-        div.append(label, amountRow);
+        const dateField = document.createElement("div");
+        dateField.append(dateLabel, dateInput);
+
+        const fields = document.createElement("div");
+        fields.className = "cup-fields";
+        fields.append(amountRow, dateField);
+
+        div.append(label, fields);
         cupsContainer.appendChild(div);
       });
 
@@ -470,7 +521,14 @@
     }
 
     function getCurrentAmounts() {
-      return Array.from(cupsContainer.querySelectorAll("input")).map(input => input.value);
+      return getCurrentCups().map(cup => cup.amount);
+    }
+
+    function getCurrentCups() {
+      return Array.from(cupsContainer.querySelectorAll(".cup")).map((cup, index) => ({
+        amount: cup.querySelector(`#cup-${index}`).value,
+        date: cup.querySelector(`#cup-${index}-date`).value,
+      }));
     }
 
     function resetCertificate() {
@@ -497,7 +555,8 @@
       progressFill.style.width = `${filledCount * 10}%`;
 
       document.querySelectorAll(".cup").forEach((cup, index) => {
-        cup.classList.toggle("filled", amounts[index].trim() !== "");
+        const date = cup.querySelector(`#cup-${index}-date`).value;
+        cup.classList.toggle("filled", amounts[index].trim() !== "" || date.trim() !== "");
       });
     }
 
@@ -509,7 +568,7 @@
         return;
       }
 
-      saveAmounts(getCurrentAmounts());
+      saveCups(getCurrentCups());
       resetConfirm.classList.remove("show");
       showMessage(`Cup ${Number(saveButton.dataset.cupIndex) + 1} saved.`);
     });
