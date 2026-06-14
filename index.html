@@ -204,6 +204,13 @@
       box-shadow: 0 0 0 4px rgba(199, 130, 58, 0.16);
     }
 
+    .amount-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      align-items: center;
+    }
+
     .actions {
       display: grid;
       gap: 12px;
@@ -237,6 +244,18 @@
 
     button:active {
       transform: translateY(0) scale(0.99);
+    }
+
+    .save-cup-button {
+      display: inline-grid;
+      place-items: center;
+      width: 46px;
+      height: 46px;
+      padding: 0;
+      border-radius: 14px;
+      font-size: 1.25rem;
+      line-height: 1;
+      box-shadow: 0 8px 16px rgba(91, 53, 29, 0.16);
     }
 
     .secondary-button {
@@ -350,10 +369,7 @@
     <div class="grid" id="cups"></div>
 
     <div class="actions">
-      <div class="button-row">
-        <button id="saveButton">Save coffee certificate</button>
-        <button class="secondary-button" id="resetButton" type="button">Reset certificate</button>
-      </div>
+      <button class="secondary-button" id="resetButton" type="button">Reset certificate</button>
       <div class="confirm-reset" id="resetConfirm" aria-live="polite">
         <p>Are you sure you want to reset the certificate? This will clear all 10 cups and remove the saved data.</p>
         <div class="button-row">
@@ -370,7 +386,6 @@
   <script>
     const STORAGE_KEY = "coffee-certificate-amounts";
     const cupsContainer = document.getElementById("cups");
-    const saveButton = document.getElementById("saveButton");
     const resetButton = document.getElementById("resetButton");
     const resetConfirm = document.getElementById("resetConfirm");
     const confirmResetButton = document.getElementById("confirmResetButton");
@@ -436,7 +451,18 @@
         input.placeholder = "Amount spent";
         input.value = amount;
 
-        div.append(label, input);
+        const saveButton = document.createElement("button");
+        saveButton.className = "save-cup-button";
+        saveButton.type = "button";
+        saveButton.textContent = "✓";
+        saveButton.setAttribute("aria-label", `Save Cup ${index + 1}`);
+        saveButton.dataset.cupIndex = String(index);
+
+        const amountRow = document.createElement("div");
+        amountRow.className = "amount-row";
+        amountRow.append(input, saveButton);
+
+        div.append(label, amountRow);
         cupsContainer.appendChild(div);
       });
 
@@ -477,12 +503,15 @@
 
     cupsContainer.addEventListener("input", updateSummary);
 
-    saveButton.addEventListener("click", () => {
-      const amounts = getCurrentAmounts();
-      saveAmounts(amounts);
+    cupsContainer.addEventListener("click", event => {
+      const saveButton = event.target.closest(".save-cup-button");
+      if (!saveButton) {
+        return;
+      }
 
+      saveAmounts(getCurrentAmounts());
       resetConfirm.classList.remove("show");
-      showMessage("Saved. Your next cup is waiting.");
+      showMessage(`Cup ${Number(saveButton.dataset.cupIndex) + 1} saved.`);
     });
 
     resetButton.addEventListener("click", () => {
